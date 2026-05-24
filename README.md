@@ -14,7 +14,7 @@
 - `scripts/build_report.py` — сборка локального отчёта `report/report_A1.docx`; сам `.docx` не хранится в репозитории.
 - `submissions_ids.txt` — места для ID успешных посылок Codeforces.
 
-Публичный репозиторий для отчёта: `https://github.com/Irek-dev/Set9_A`.
+Публичный репозиторий для отчёта: `https://github.com/Irek-dev/SET9_A.git`.
 
 ## Параметры эксперимента
 

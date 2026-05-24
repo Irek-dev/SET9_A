@@ -10,6 +10,7 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.shared import Inches, Pt, RGBColor
 
 
@@ -19,7 +20,7 @@ RAW = ROOT / "data" / "raw_results.csv"
 FIGURES = ROOT / "figures"
 REPORT = ROOT / "report" / "report_A1.docx"
 IDS_FILE = ROOT / "submissions_ids.txt"
-REPOSITORY_URL = "https://github.com/Irek-dev/Set9_A"
+REPOSITORY_URL = "https://github.com/Irek-dev/SET9_A.git"
 
 SEED = 20260524
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%:;^&*()-"
@@ -213,6 +214,28 @@ def add_black_heading(doc: Document, text: str, level: int = 1) -> None:
     run.font.color.rgb = RGBColor(0, 0, 0)
 
 
+def add_hyperlink(paragraph, text: str, url: str) -> None:
+    relationship_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), relationship_id)
+
+    new_run = OxmlElement("w:r")
+    properties = OxmlElement("w:rPr")
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), "000000")
+    underline = OxmlElement("w:u")
+    underline.set(qn("w:val"), "single")
+    properties.append(color)
+    properties.append(underline)
+    new_run.append(properties)
+
+    text_element = OxmlElement("w:t")
+    text_element.text = text
+    new_run.append(text_element)
+    hyperlink.append(new_run)
+    paragraph._p.append(hyperlink)
+
+
 def add_graphs(doc: Document) -> None:
     for array_type in ARRAY_LABELS:
         add_black_heading(doc, f"Графики: {ARRAY_LABELS[array_type]} массив", level=2)
@@ -310,8 +333,14 @@ def build_report() -> None:
     add_paragraph(
         doc,
         f"Файлы с исходными замерами: {RAW.name}, {AVERAGED.name}. Реализации StringGenerator "
-        f"и StringSortTester находятся в исходниках проекта. Ссылка на публичный репозиторий: {REPOSITORY_URL}."
+        "и StringSortTester находятся в исходниках проекта."
     )
+    add_black_heading(doc, "Репозиторий", level=1)
+    link_paragraph = doc.add_paragraph("Ссылка на публичный репозиторий: ")
+    link_paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    for run in link_paragraph.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
+    add_hyperlink(link_paragraph, REPOSITORY_URL, REPOSITORY_URL)
 
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     doc.save(REPORT)
