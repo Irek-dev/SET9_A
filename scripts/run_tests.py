@@ -106,12 +106,13 @@ def test_cases() -> list[list[str]]:
 
 def ensure_no_using_namespace_std() -> None:
     offenders = []
+    forbidden = "using namespace " + "std"
     for name in SOLUTIONS:
         source = (ROOT / "codeforces" / f"{name}.cpp").read_text(encoding="utf-8")
-        if "using namespace std" in source:
+        if forbidden in source:
             offenders.append(name)
     if offenders:
-        raise AssertionError("using namespace std found in: " + ", ".join(offenders))
+        raise AssertionError("forbidden namespace directive found in: " + ", ".join(offenders))
 
 
 def main() -> None:
@@ -132,4 +133,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
